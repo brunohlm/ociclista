@@ -1,0 +1,54 @@
+/* ============================================================
+   O CICLISTA — Design Tokens
+   Todas as variáveis do design system centralizadas aqui.
+   ============================================================ */
+
+:root {
+  /* --- Cores --- */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #242424;
+  --bg-card: #2a2a2a;
+  --bg-input: #333333;
+  --bg-hover: #3a3a3a;
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
+
+  --accent: #d4a574;
+  --accent-hover: #e0b88a;
+  --accent-dim: rgba(212, 165, 116, 0.12);
+
+  --border: #3a3a3a;
+  --border-focus: #555;
+
+  --success: #6bcb77;
+  --warning: #ffc947;
+  --danger: #ff6b6b;
+
+  /* --- Espaçamento --- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 40px;
+
+  /* --- Bordas --- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* --- Sombras --- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  /* --- Transições --- */
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Tipografia --- */
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Fraunces', serif;
+}

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="O Ciclista - Calculadora de Pressão de Pneu para Bicicletas. Encontre a pressão ideal para road, gravel, cyclocross e MTB.">
+  <meta name="keywords" content="pressão pneu bicicleta, tire pressure calculator, ciclismo, road bike, gravel, MTB, PSI, bar">
+  <meta name="author" content="O Ciclista">
+  <meta property="og:title" content="O Ciclista — Calculadora de Pressão de Pneu">
+  <meta property="og:description" content="Encontre a pressão ideal dos seus pneus para cada pedalada.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#1a1a1a">
+
+  <title>O Ciclista — Calculadora de Pressão de Pneu</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="./assets/icons/logo.svg" type="image/svg+xml">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+
+  <!-- CSS Modules -->
+  <link rel="stylesheet" href="./css/variables.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/results.css">
+
+  <!-- ============================================================
+       GOOGLE ANALYTICS 4
+       ⚠️  Substitua G-XXXXXXXXXX pelo seu Measurement ID real.
+       Crie em: https://analytics.google.com → Admin → Data Streams
+       ============================================================ -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <!-- ============================================================
+       GOOGLE ADSENSE (opcional)
+       ⚠️  Substitua ca-pub-XXXXXXXX pelo seu Publisher ID real.
+       ============================================================ -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXX" crossorigin="anonymous"></script> -->
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <!-- Left Ad Rail -->
+  <aside class="ad-rail" aria-label="Publicidade">
+    <div class="ad-placeholder">
+      <!-- AD SLOT: 160x600 Skyscraper -->
+      Ad 160×600
+    </div>
+  </aside>
+
+  <!-- ======================== MAIN CONTENT ======================== -->
+  <main class="main-content">
+
+    <!-- Header -->
+    <header>
+      <div class="logo-mark">
+        <div class="logo-icon">
+          <svg viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="46" stroke="currentColor" stroke-width="3"/>
+            <circle cx="50" cy="50" r="12" fill="currentColor"/>
+            <line x1="50" y1="4" x2="50" y2="20" stroke="currentColor" stroke-width="2.5"/>
+            <line x1="50" y1="80" x2="50" y2="96" stroke="currentColor" stroke-width="2.5"/>
+            <line x1="4" y1="50" x2="20" y2="50" stroke="currentColor" stroke-width="2.5"/>
+            <line x1="80" y1="50" x2="96" y2="50" stroke="currentColor" stroke-width="2.5"/>
+            <line x1="17" y1="17" x2="28" y2="28" stroke="currentColor" stroke-width="2"/>
+            <line x1="72" y1="72" x2="83" y2="83" stroke="currentColor" stroke-width="2"/>
+            <line x1="17" y1="83" x2="28" y2="72" stroke="currentColor" stroke-width="2"/>
+            <line x1="72" y1="28" x2="83" y2="17" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <span class="logo-text">O Ciclista</span>
+      </div>
+      <p>Encontre a pressão ideal dos seus pneus para cada pedalada. Insira os dados do seu setup e receba recomendações personalizadas.</p>
+    </header>
+
+    <!-- Top Ad Banner -->
+    <div class="ad-banner" aria-label="Publicidade">
+      <!-- AD SLOT: 728x90 Leaderboard -->
+      Ad 728×90
+    </div>
+
+    <!-- ======================== CALCULATOR FLOW ======================== -->
+    <div class="conversation-flow">
+
+      <!-- Step Indicator -->
+      <div class="step-indicator" id="stepIndicator">
+        <div class="step-dot active" data-step="1"></div>
+        <div class="step-line" data-step="1"></div>
+        <div class="step-dot" data-step="2"></div>
+        <div class="step-line" data-step="2"></div>
+        <div class="step-dot" data-step="3"></div>
+        <div class="step-line" data-step="3"></div>
+        <div class="step-dot" data-step="4"></div>
+        <div class="step-line" data-step="4"></div>
+        <div class="step-dot" data-step="5"></div>
+      </div>
+
+      <!-- STEP 1: Ride Type -->
+      <div class="message" id="step1">
+        <div class="message-avatar ai-avatar">OC</div>
+        <div class="message-body">
+          <div class="message-sender">O Ciclista</div>
+          <div class="message-content">
+            <p>Vamos encontrar a pressão ideal para os seus pneus. Primeiro, me diga: <span class="highlight">qual o seu estilo de pedal?</span></p>
+            <div class="input-group">
+              <div class="toggle-group" id="rideTypeGroup">
+                <button class="toggle-btn" data-value="road" onclick="selectRideType(this)">🚴 Road</button>
+                <button class="toggle-btn" data-value="gravel" onclick="selectRideType(this)">🏔️ Gravel</button>
+                <button class="toggle-btn" data-value="cyclocross" onclick="selectRideType(this)">🌿 Cyclocross</button>
+                <button class="toggle-btn" data-value="mtb" onclick="selectRideType(this)">⛰️ MTB</button>
+              </div>
+            </div>
+            <div class="input-group" id="conditionGroup" style="display:none;">
+              <label>Condição do piso</label>
+              <div class="toggle-group" id="conditionToggle">
+                <button class="toggle-btn" data-value="dry" onclick="selectCondition(this)">☀️ Seco</button>
+                <button class="toggle-btn" data-value="wet" onclick="selectCondition(this)">🌧️ Molhado</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Weight -->
+      <div class="message hidden" id="step2">
+        <div class="message-avatar ai-avatar">OC</div>
+        <div class="message-body">
+          <div class="message-sender">O Ciclista</div>
+          <div class="message-content">
+            <p>Ótima escolha! Agora preciso saber o <span class="highlight">peso total do sistema</span> — isso inclui você, a bike e todo equipamento que leva no pedal.</p>
+            <div class="input-row">
+              <div class="input-group">
+                <label>Peso do ciclista <span class="unit" id="riderWeightUnit">(kg)</span></label>
+                <input type="number" id="riderWeight" placeholder="75" min="30" max="200" step="0.5" oninput="validateStep2()">
+              </div>
+              <div class="input-group">
+                <label>Peso da bike <span class="unit" id="bikeWeightUnit">(kg)</span></label>
+                <input type="number" id="bikeWeight" placeholder="8.5" min="3" max="30" step="0.1" oninput="validateStep2()">
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+              <span style="font-size:13px;color:var(--text-muted);">Unidade de medida:</span>
+              <div class="unit-toggle" id="weightUnitToggle">
+                <button class="active" onclick="setWeightUnit('kg')">kg</button>
+                <button onclick="setWeightUnit('lb')">lb</button>
+              </div>
+            </div>
+            <button class="calc-btn" id="step2Btn" disabled onclick="goToStep(3)" style="margin-top:16px;">Continuar →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Tire Details -->
+      <div class="message hidden" id="step3">
+        <div class="message-avatar ai-avatar">OC</div>
+        <div class="message-body">
+          <div class="message-sender">O Ciclista</div>
+          <div class="message-content">
+            <p>Agora vamos para os <span class="highlight">detalhes dos pneus</span>. A largura está impressa na lateral do pneu — o segundo número (ex: 700x<strong>28</strong>c = 28mm).</p>
+            <div class="input-row">
+              <div class="input-group">
+                <label>Pneu dianteiro <span class="unit" id="frontWidthUnit">(mm)</span></label>
+                <input type="number" id="frontTireWidth" placeholder="28" min="20" max="120" step="1" oninput="validateStep3()">
+              </div>
+              <div class="input-group">
+                <label>Pneu traseiro <span class="unit" id="rearWidthUnit">(mm)</span></label>
+                <input type="number" id="rearTireWidth" placeholder="28" min="20" max="120" step="1" oninput="validateStep3()">
+              </div>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label>Casing dianteiro</label>
+                <select id="frontCasing" onchange="validateStep3()">
+                  <option value="">Selecione...</option>
+                  <option value="thin">Thin (leve, sem proteção)</option>
+                  <option value="standard">Standard (proteção normal)</option>
+                  <option value="reinforced">Reinforced (reforçado)</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Casing traseiro</label>
+                <select id="rearCasing" onchange="validateStep3()">
+                  <option value="">Selecione...</option>
+                  <option value="thin">Thin (leve, sem proteção)</option>
+                  <option value="standard">Standard (proteção normal)</option>
+                  <option value="reinforced">Reinforced (reforçado)</option>
+                </select>
+              </div>
+            </div>
+            <button class="calc-btn" id="step3Btn" disabled onclick="goToStep(4)" style="margin-top:16px;">Continuar →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Rim Details -->
+      <div class="message hidden" id="step4">
+        <div class="message-avatar ai-avatar">OC</div>
+        <div class="message-body">
+          <div class="message-sender">O Ciclista</div>
+          <div class="message-content">
+            <p>Quase lá! Preciso dos <span class="highlight">detalhes do aro</span>. A largura interna é a distância entre as bordas internas onde o pneu encaixa.</p>
+            <div class="input-group">
+              <label>Diâmetro da roda</label>
+              <select id="wheelDiameter" onchange="validateStep4()">
+                <option value="">Selecione...</option>
+                <option value="700c">700c (Road/Gravel)</option>
+                <option value="650b">650b / 27.5"</option>
+                <option value="650c">650c</option>
+                <option value="29">29" (MTB)</option>
+                <option value="27.5">27.5" (MTB)</option>
+                <option value="26">26" (MTB)</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Tipo de aro e sistema</label>
+              <div class="toggle-group" id="rimTypeGroup">
+                <button class="toggle-btn" data-value="hookless_tubeless" onclick="selectRimType(this)">Hookless (Tubeless)</button>
+                <button class="toggle-btn" data-value="hooked_tubeless" onclick="selectRimType(this)">Hooked (Tubeless)</button>
+                <button class="toggle-btn" data-value="hooked_tubed" onclick="selectRimType(this)">Hooked (com Câmara)</button>
+              </div>
+              <p style="font-size:12px;color:var(--text-muted);margin-top:6px;">Hookless = aro sem gancho (máx 72.5 psi). Hooked = aro com gancho. Tubeless = sem câmara de ar.</p>
+            </div>
+            <button class="calc-btn" id="step4Btn" disabled onclick="calculatePressure()" style="margin-top:16px;">
+              🔬 Calcular Pressão
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Results -->
+      <div class="message hidden" id="step5">
+        <div class="message-avatar ai-avatar">OC</div>
+        <div class="message-body">
+          <div class="message-sender">O Ciclista</div>
+          <div class="message-content" id="resultsContent">
+            <!-- Populated by results.js -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================== INFO SECTIONS ======================== -->
+    <div class="info-section">
+      <h3>Como funciona?</h3>
+      <p>A pressão ideal dos pneus depende de diversas variáveis: peso total (ciclista + bike + equipamento), largura do pneu e do aro, tipo de casing, estilo de pedal e condições da superfície. A física por trás é simples — o pneu funciona como uma mola a ar. Quanto mais peso, mais pressão é necessária para evitar que o pneu fique em compressão constante.</p>
+      <p>Volume é fundamental: pela Lei de Boyle, conforme o volume aumenta, a pressão necessária diminui. Pneus mais largos em aros mais largos criam mais volume, permitindo pressões menores com o mesmo suporte. Pneus tubeless podem rodar com pressões ainda mais baixas por não haver risco de pinch flat (mordida na câmara).</p>
+      <p>Estudos recentes mostram que pressões mais baixas em superfícies reais (não em tambores de laboratório) reduzem a resistência ao rolamento, pois o pneu absorve imperfeições do terreno em vez de transmitir vibração vertical ao ciclista e à bike.</p>
+    </div>
+
+    <div class="info-section">
+      <h3>Dicas importantes</h3>
+      <p>Aros hookless tubeless possuem limite máximo de 72.5 psi (5 bar) conforme norma ETRTO. Nunca exceda a pressão máxima indicada pelo fabricante do pneu ou do aro — use sempre o menor valor entre os dois.</p>
+      <p>A distribuição de peso típica em uma bike de estrada é de aproximadamente 48% frente e 52% traseira. Para MTB e gravel, a distribuição varia (45/55 a 42/58) dependendo da geometria. O pneu traseiro sempre deve ter pressão ligeiramente maior.</p>
+      <p>Setup tubeless permite rodar com 3-4 psi a menos que setups com câmara, melhorando conforto e aderência sem risco de pinch flat. Já setups com câmara se beneficiam de ~2 psi a mais pela fricção adicional do tubo interno.</p>
+    </div>
+
+    <!-- Bottom Ad Banner -->
+    <div class="ad-banner" aria-label="Publicidade">
+      <!-- AD SLOT: 728x90 Leaderboard -->
+      Ad 728×90
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 2026 O Ciclista — Calculadora de Pressão de Pneu</p>
+      <p>As recomendações são um ponto de partida. Ajuste conforme seu conforto e condições.</p>
+      <p style="margin-top:8px;font-size:11px;">Algoritmo calibrado contra SRAM AXS. Não afiliado à SRAM LLC.</p>
+    </footer>
+
+  </main>
+
+  <!-- Right Ad Rail -->
+  <aside class="ad-rail" aria-label="Publicidade">
+    <div class="ad-placeholder">
+      <!-- AD SLOT: 160x600 Skyscraper -->
+      Ad 160×600
+    </div>
+  </aside>
+
+</div>
+
+<!-- ======================== JS MODULES ======================== -->
+<!-- Ordem importa: state → analytics → ui → calculator → results -->
+<script src="./js/state.js"></script>
+<script src="./js/analytics.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/calculator.js"></script>
+<script src="./js/results.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+/* ============================================================
+   O CICLISTA — Layout (Grid, Ads, Responsive)
+   ============================================================ */
+
+/* --- Page Grid --- */
+.page-wrapper {
+  display: grid;
+  grid-template-columns: 1fr min(800px, 90vw) 1fr;
+  min-height: 100vh;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* --- Ad Rails (lateral) --- */
+.ad-rail {
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding-top: 100px;
+}
+
+.ad-placeholder {
+  width: 160px;
+  min-height: 600px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--bg-secondary);
+  position: sticky;
+  top: 20px;
+}
+
+/* --- Ad Banner (horizontal) --- */
+.ad-banner {
+  width: 100%;
+  max-width: 728px;
+  min-height: 90px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--bg-secondary);
+  margin: 20px auto;
+}
+
+/* --- Header --- */
+header {
+  padding: var(--space-xl) 0 var(--space-lg);
+  text-align: center;
+  position: relative;
+}
+
+.logo-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--space-sm);
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: var(--bg-primary);
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+header p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  max-width: 480px;
+  margin: 0 auto;
+  font-weight: 300;
+}
+
+/* --- Footer --- */
+footer {
+  text-align: center;
+  padding: var(--space-xl) 0;
+  border-top: 1px solid var(--border);
+  margin-top: var(--space-2xl);
+}
+
+footer p {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* --- Info Sections --- */
+.info-section {
+  margin-top: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.info-section h3 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.info-section p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.info-section p:last-child { margin-bottom: 0; }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 1200px) {
+  .page-wrapper {
+    grid-template-columns: 1fr;
+  }
+  .ad-rail { display: none; }
+}
+
+@media (max-width: 600px) {
+  html { font-size: 15px; }
+  .logo-text { font-size: 24px; }
+  .input-row { grid-template-columns: 1fr; }
+  .pressure-value { font-size: 34px; }
+  .toggle-btn { padding: 8px 14px; font-size: 13px; }
+  .message { gap: 8px; }
+  .message-content { padding: 16px; }
+}
