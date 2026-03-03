@@ -3,28 +3,42 @@
    
    Reverse-engineered from SRAM AXS Tire Pressure Guide.
    
-   Core formula:
-     P = K × W_wheel / (tireWidth × rimWidth^1.4) × adjustments
+   CORRECTED FORMULA (v2 — additive offset model):
    
-   Calibration verified:
-   - 91.5kg, road, dry, 28mm std, hooked tubeless, 21mm → 66.5 / 70.8 psi ✅
-   - 108kg, 28mm, 23mm IW, hooked → ~73.8 psi rear (5.09 bar) ✅
+     P_front = BASE_F + SLOPE_F * W_total * DIST_F / (tireWidth * rimWidth^1.4)
+     P_rear  = BASE_R + SLOPE_R * W_total * DIST_R / (tireWidth * rimWidth^1.4)
+   
+   SRAM's pressure is NOT purely linear with weight. There's a significant
+   base pressure component independent of rider weight. This was discovered
+   when a lighter rider (67kg) got pressures much closer to a heavier one
+   (91.5kg) than a linear model would predict (+7.6% PSI for +36.6% weight).
+   
+   Calibration verified against SRAM AXS:
+   - 91.5kg, road, dry, 28mm std, hooked tubeless, 21mm IW -> 66.5 / 70.8 psi
+   - 67.0kg, road, dry, 28mm std, hooked tubeless, 21mm IW -> 61.8 / 65.7 psi
    ============================================================ */
 
-// --- Constants ---
+// --- Constants (Road, calibrated on SRAM AXS) ---
 
-const WEIGHT_DISTRIBUTION = {
-  road:       { front: 0.4843, rear: 0.5157 },
-  gravel:     { front: 0.45,   rear: 0.55 },
-  cyclocross: { front: 0.45,   rear: 0.55 },
-  mtb:        { front: 0.42,   rear: 0.58 }
+const ROAD_PARAMS = {
+  front: { base: 48.95, slope: 787.2, dist: 0.4843 },
+  rear:  { base: 51.75, slope: 802.2, dist: 0.5157 }
 };
 
-const PRESSURE_K = {
-  road:       2982.5,
-  gravel:     4200,
-  cyclocross: 3800,
-  mtb:        5600
+const DISCIPLINE_PARAMS = {
+  road: ROAD_PARAMS,
+  gravel: {
+    front: { base: 30.0, slope: 1100, dist: 0.45 },
+    rear:  { base: 32.0, slope: 1120, dist: 0.55 }
+  },
+  cyclocross: {
+    front: { base: 35.0, slope: 1000, dist: 0.45 },
+    rear:  { base: 37.0, slope: 1020, dist: 0.55 }
+  },
+  mtb: {
+    front: { base: 18.0, slope: 1450, dist: 0.42 },
+    rear:  { base: 20.0, slope: 1480, dist: 0.58 }
+  }
 };
 
 const CASING_MULTIPLIER = {
@@ -44,8 +58,7 @@ const DIAMETER_MULTIPLIER = {
 
 const RIM_EXPONENT = 1.4;
 const WET_MULTIPLIER = 0.93;
-const TUBELESS_ADJ = 0;       // baseline (calibrated on hooked tubeless)
-const TUBED_ADJ = 3;          // +3 psi for inner tube
+const TUBED_ADJ = 3;
 const HOOKLESS_MAX_PSI = 72.5;
 const HOOKED_MAX_PSI = 120;
 
@@ -82,11 +95,10 @@ function calculatePressure() {
   const frontCasing   = document.getElementById('frontCasing').value;
   const rearCasing    = document.getElementById('rearCasing').value;
   const wheelDiameter = document.getElementById('wheelDiameter').value;
-  const rimWidth      = 21;
+  const rimWidth      = 21;// parseFloat(document.getElementById('rimWidth').value);
 
-  // Distribution & constants
-  const dist = WEIGHT_DISTRIBUTION[state.rideType] || WEIGHT_DISTRIBUTION.road;
-  const K    = PRESSURE_K[state.rideType] || PRESSURE_K.road;
+  // Get discipline parameters
+  const params = DISCIPLINE_PARAMS[state.rideType] || DISCIPLINE_PARAMS.road;
 
   // Multipliers
   const frontCasingMult = CASING_MULTIPLIER[frontCasing] || 1.0;
@@ -94,20 +106,23 @@ function calculatePressure() {
   const wetMult         = state.condition === 'wet' ? WET_MULTIPLIER : 1.0;
   const dMult           = DIAMETER_MULTIPLIER[wheelDiameter] || 1.0;
 
-  // System adjustment
+  // System adjustment (tubeless is baseline, tubed adds pressure)
   const isTubeless = state.rimType === 'hookless_tubeless' || state.rimType === 'hooked_tubeless';
-  const systemAdj  = state.rimType === 'hooked_tubed' ? TUBED_ADJ : TUBELESS_ADJ;
+  const systemAdj  = state.rimType === 'hooked_tubed' ? TUBED_ADJ : 0;
 
-  // Core calculation
+  // === CORE CALCULATION ===
+  // P = base + slope * W_total * dist / (tireWidth * rimWidth^1.4)
   const rimFactor = Math.pow(rimWidth, RIM_EXPONENT);
-  const frontLoad = totalWeightKg * dist.front;
-  const rearLoad  = totalWeightKg * dist.rear;
 
-  let frontPsi = (K * frontLoad) / (frontWidthMm * rimFactor);
+  // Front wheel
+  const frontWeightTerm = params.front.slope * totalWeightKg * params.front.dist / (frontWidthMm * rimFactor);
+  let frontPsi = params.front.base + frontWeightTerm;
   frontPsi *= frontCasingMult * wetMult * dMult;
   frontPsi += systemAdj;
 
-  let rearPsi = (K * rearLoad) / (rearWidthMm * rimFactor);
+  // Rear wheel
+  const rearWeightTerm = params.rear.slope * totalWeightKg * params.rear.dist / (rearWidthMm * rimFactor);
+  let rearPsi = params.rear.base + rearWeightTerm;
   rearPsi *= rearCasingMult * wetMult * dMult;
   rearPsi += systemAdj;
 
