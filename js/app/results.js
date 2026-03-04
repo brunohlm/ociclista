@@ -1,7 +1,3 @@
-/* ============================================================
-   O CICLISTA — Results Renderer
-   ============================================================ */
-
 function displayResults(data) {
   const rideTypeLabels = { road: 'Road', gravel: 'Gravel', cyclocross: 'Cyclocross', mtb: 'MTB' };
   const condLabels = { dry: 'Seco', wet: 'Molhado' };

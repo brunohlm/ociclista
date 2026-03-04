@@ -1,11 +1,5 @@
-/* ============================================================
-   O CICLISTA — UI Module
-   Step navigation, validation, DOM interactions.
-   ============================================================ */
-
-// --- Step Navigation ---
-
 function selectRideType(btn) {
+  const state = window.AppState;
   document.querySelectorAll('#rideTypeGroup .toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   state.rideType = btn.dataset.value;
@@ -15,6 +9,7 @@ function selectRideType(btn) {
 }
 
 function selectCondition(btn) {
+  const state = window.AppState;
   document.querySelectorAll('#conditionToggle .toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   state.condition = btn.dataset.value;
@@ -22,6 +17,7 @@ function selectCondition(btn) {
 }
 
 function selectRimType(btn) {
+  const state = window.AppState;
   document.querySelectorAll('#rimTypeGroup .toggle-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   state.rimType = btn.dataset.value;
@@ -29,6 +25,7 @@ function selectRimType(btn) {
 }
 
 function goToStep(step) {
+  const state = window.AppState;
   state.currentStep = step;
   const el = document.getElementById('step' + step);
   if (el) {
@@ -39,6 +36,7 @@ function goToStep(step) {
 }
 
 function updateStepIndicator() {
+  const state = window.AppState;
   document.querySelectorAll('.step-dot').forEach(dot => {
     const s = parseInt(dot.dataset.step);
     dot.classList.remove('active', 'done');
@@ -51,9 +49,8 @@ function updateStepIndicator() {
   });
 }
 
-// --- Placeholders per ride type ---
-
 function updatePlaceholders() {
+  const state = window.AppState;
   const fInput = document.getElementById('frontTireWidth');
   const rInput = document.getElementById('rearTireWidth');
 
@@ -81,9 +78,8 @@ function updatePlaceholders() {
   }
 }
 
-// --- Unit Toggle ---
-
 function setWeightUnit(unit) {
+  const state = window.AppState;
   const btns = document.querySelectorAll('#weightUnitToggle button');
   btns.forEach(b => b.classList.remove('active'));
   btns.forEach(b => { if (b.textContent.trim() === unit) b.classList.add('active'); });
@@ -91,8 +87,6 @@ function setWeightUnit(unit) {
   document.getElementById('riderWeightUnit').textContent = `(${unit})`;
   document.getElementById('bikeWeightUnit').textContent = `(${unit})`;
 }
-
-// --- Validation ---
 
 function validateStep2() {
   const rw = parseFloat(document.getElementById('riderWeight').value);
@@ -109,14 +103,14 @@ function validateStep3() {
 }
 
 function validateStep4() {
+  const state = window.AppState;
   const wd = document.getElementById('wheelDiameter').value;
-  const riw = DEFAULT_RIM_WIDTH_MM;
+  const riw = window.PressureCore.DEFAULT_RIM_WIDTH_MM;
   document.getElementById('step4Btn').disabled = !(wd && state.rimType && riw);
 }
 
-// --- Reset ---
-
 function resetCalculator() {
+  const state = window.AppState;
   for (let i = 2; i <= 5; i++) {
     document.getElementById('step' + i).classList.add('hidden');
   }
@@ -125,7 +119,8 @@ function resetCalculator() {
 
   ['riderWeight', 'bikeWeight', 'frontTireWidth', 'rearTireWidth',
    'frontCasing', 'rearCasing', 'wheelDiameter', 'rimWidth'].forEach(id => {
-    document.getElementById(id).value = '';
+    const el = document.getElementById(id);
+    if (el) el.value = '';
   });
 
   state.rideType = null;
@@ -138,5 +133,4 @@ function resetCalculator() {
   trackEvent('reset_calculator');
 }
 
-// --- Init ---
 updateStepIndicator();

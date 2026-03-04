@@ -72,18 +72,66 @@ function psiToBar(psi) {
   return psi * 0.0689476;
 }
 
-// --- Main Calculator ---
+// --- Domain (pure) ---
+
+function computePressure(input) {
+  const params = DISCIPLINE_PARAMS[input.rideType] || DISCIPLINE_PARAMS.road;
+
+  const frontCasingMult = CASING_MULTIPLIER[input.frontCasing] || 1.0;
+  const rearCasingMult  = CASING_MULTIPLIER[input.rearCasing] || 1.0;
+  const wetMult         = input.condition === 'wet' ? WET_MULTIPLIER : 1.0;
+  const dMult           = DIAMETER_MULTIPLIER[input.wheelDiameter] || 1.0;
+
+  const isTubeless = input.rimType === 'hookless_tubeless' || input.rimType === 'hooked_tubeless';
+  const systemAdj  = input.rimType === 'hooked_tubed' ? TUBED_ADJ : 0;
+
+  const rimFactor = Math.pow(input.rimWidth, RIM_EXPONENT);
+
+  const frontWeightTerm = params.front.slope * input.totalWeightKg * params.front.dist / (input.frontWidthMm * rimFactor);
+  let frontPsi = params.front.base + frontWeightTerm;
+  frontPsi *= frontCasingMult * wetMult * dMult;
+  frontPsi += systemAdj;
+
+  const rearWeightTerm = params.rear.slope * input.totalWeightKg * params.rear.dist / (input.rearWidthMm * rimFactor);
+  let rearPsi = params.rear.base + rearWeightTerm;
+  rearPsi *= rearCasingMult * wetMult * dMult;
+  rearPsi += systemAdj;
+
+  const isHookless = input.rimType === 'hookless_tubeless';
+  const maxPsi = isHookless ? HOOKLESS_MAX_PSI : HOOKED_MAX_PSI;
+  const minPsi = input.rideType === 'mtb' ? 15 : 25;
+
+  frontPsi = Math.max(minPsi, Math.min(maxPsi, frontPsi));
+  rearPsi  = Math.max(minPsi, Math.min(maxPsi, rearPsi));
+
+  frontPsi = Math.round(frontPsi * 10) / 10;
+  rearPsi  = Math.round(rearPsi * 10) / 10;
+
+  const frontBar = psiToBar(frontPsi).toFixed(2);
+  const rearBar  = psiToBar(rearPsi).toFixed(2);
+
+  return {
+    frontPsi,
+    rearPsi,
+    frontBar,
+    rearBar,
+    isHookless,
+    isTubeless,
+    maxPsi
+  };
+}
+
+// --- Main Calculator (DOM adapter) ---
 
 function calculatePressure() {
-  // Collect inputs
   const riderWeightRaw = parseFloat(document.getElementById('riderWeight').value);
   const bikeWeightRaw  = parseFloat(document.getElementById('bikeWeight').value);
   const riderWeightKg  = toKg(riderWeightRaw, state.weightUnit);
   const bikeWeightKg   = toKg(bikeWeightRaw, state.weightUnit);
   const totalWeightKg  = riderWeightKg + bikeWeightKg;
 
-  let frontWidthRaw = parseFloat(document.getElementById('frontTireWidth').value);
-  let rearWidthRaw  = parseFloat(document.getElementById('rearTireWidth').value);
+  const frontWidthRaw = parseFloat(document.getElementById('frontTireWidth').value);
+  const rearWidthRaw  = parseFloat(document.getElementById('rearTireWidth').value);
 
   let frontWidthMm = frontWidthRaw;
   let rearWidthMm  = rearWidthRaw;
@@ -92,76 +140,42 @@ function calculatePressure() {
     rearWidthMm  = rearWidthRaw * 25.4;
   }
 
-  const frontCasing   = document.getElementById('frontCasing').value;
-  const rearCasing    = document.getElementById('rearCasing').value;
-  const wheelDiameter = document.getElementById('wheelDiameter').value;
-  const rimWidth      = 21;// parseFloat(document.getElementById('rimWidth').value);
-
-  // Get discipline parameters
-  const params = DISCIPLINE_PARAMS[state.rideType] || DISCIPLINE_PARAMS.road;
-
-  // Multipliers
-  const frontCasingMult = CASING_MULTIPLIER[frontCasing] || 1.0;
-  const rearCasingMult  = CASING_MULTIPLIER[rearCasing] || 1.0;
-  const wetMult         = state.condition === 'wet' ? WET_MULTIPLIER : 1.0;
-  const dMult           = DIAMETER_MULTIPLIER[wheelDiameter] || 1.0;
-
-  // System adjustment (tubeless is baseline, tubed adds pressure)
-  const isTubeless = state.rimType === 'hookless_tubeless' || state.rimType === 'hooked_tubeless';
-  const systemAdj  = state.rimType === 'hooked_tubed' ? TUBED_ADJ : 0;
-
-  // === CORE CALCULATION ===
-  // P = base + slope * W_total * dist / (tireWidth * rimWidth^1.4)
-  const rimFactor = Math.pow(rimWidth, RIM_EXPONENT);
-
-  // Front wheel
-  const frontWeightTerm = params.front.slope * totalWeightKg * params.front.dist / (frontWidthMm * rimFactor);
-  let frontPsi = params.front.base + frontWeightTerm;
-  frontPsi *= frontCasingMult * wetMult * dMult;
-  frontPsi += systemAdj;
-
-  // Rear wheel
-  const rearWeightTerm = params.rear.slope * totalWeightKg * params.rear.dist / (rearWidthMm * rimFactor);
-  let rearPsi = params.rear.base + rearWeightTerm;
-  rearPsi *= rearCasingMult * wetMult * dMult;
-  rearPsi += systemAdj;
-
-  // Safety limits
-  const isHookless = state.rimType === 'hookless_tubeless';
-  const maxPsi = isHookless ? HOOKLESS_MAX_PSI : HOOKED_MAX_PSI;
-  const minPsi = state.rideType === 'mtb' ? 15 : 25;
-
-  frontPsi = Math.max(minPsi, Math.min(maxPsi, frontPsi));
-  rearPsi  = Math.max(minPsi, Math.min(maxPsi, rearPsi));
-
-  // Round to 1 decimal (SRAM precision)
-  frontPsi = Math.round(frontPsi * 10) / 10;
-  rearPsi  = Math.round(rearPsi * 10) / 10;
-
-  const frontBar = psiToBar(frontPsi).toFixed(2);
-  const rearBar  = psiToBar(rearPsi).toFixed(2);
-
-  // Analytics
-  trackEvent('calculate_pressure', {
-    ride_type: state.rideType,
+  const input = {
+    rideType: state.rideType,
     condition: state.condition,
+    rimType: state.rimType,
+    totalWeightKg,
+    frontWidthMm,
+    rearWidthMm,
+    frontCasing: document.getElementById('frontCasing').value,
+    rearCasing: document.getElementById('rearCasing').value,
+    wheelDiameter: document.getElementById('wheelDiameter').value,
+    rimWidth: 21
+  };
+
+  const result = computePressure(input);
+
+  trackEvent('calculate_pressure', {
+    ride_type: input.rideType,
+    condition: input.condition,
     total_weight_kg: totalWeightKg.toFixed(1),
     front_tire_mm: frontWidthMm.toFixed(0),
     rear_tire_mm: rearWidthMm.toFixed(0),
-    rim_type: state.rimType,
-    rim_width_mm: rimWidth,
-    front_psi: frontPsi,
-    rear_psi: rearPsi
+    rim_type: input.rimType,
+    rim_width_mm: input.rimWidth,
+    front_psi: result.frontPsi,
+    rear_psi: result.rearPsi
   });
 
-  // Render results
   displayResults({
-    frontPsi, rearPsi, frontBar, rearBar,
+    ...result,
+    rideType: input.rideType,
+    condition: input.condition,
+    rimType: input.rimType,
     totalWeightKg: totalWeightKg.toFixed(1),
     riderWeightKg: riderWeightKg.toFixed(1),
     bikeWeightKg: bikeWeightKg.toFixed(1),
     frontWidthMm: frontWidthMm.toFixed(0),
-    rearWidthMm: rearWidthMm.toFixed(0),
-    isHookless, isTubeless, maxPsi
+    rearWidthMm: rearWidthMm.toFixed(0)
   });
 }

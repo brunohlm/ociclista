@@ -3,6 +3,8 @@
    Estado global da aplicação.
    ============================================================ */
 
+const DEFAULT_RIM_WIDTH_MM = 21;
+
 const state = {
   rideType: null,       // 'road' | 'gravel' | 'cyclocross' | 'mtb'
   condition: null,      // 'dry' | 'wet'
